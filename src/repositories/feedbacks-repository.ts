@@ -1,9 +1,12 @@
-export interface FeedbackCreateData  {
-  type: string;
-  comment: string;
-  screenshot?: string;
-}
+import { FeedbackDTO , Feedbacks } from '../models/feedbacks';
+
+//export interface FeedbackCreateData  {
+//  type: string;
+//  comment: string;
+//  screenshot?: string;
+//}
 
 export interface FeedbacksRepository {
-  create: (data: FeedbackCreateData) => Promise<void>;
+  create: (data: FeedbackDTO) => Promise<void>;
+  find() => Promise<IFeedbacks>;  
 }

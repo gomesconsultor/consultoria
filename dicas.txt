@@ -1,0 +1,339 @@
+sena do modem TIMLive
+822d8
+NinoeSoso20
+
+font:
+prisma.io 
+app.planetscale.com/gomescpereira/mygomes
+
+fonte de exemplo
+github.com/rockectseat-education/ignite-lab-01-aulas
+gomescpereira@gmail.com
+kp-651FV00#
+
+npm install prisma -D
+npm i typescript @types/node ts-node-env -D
+
+# Inicializando Typescript
+
+npx tsc --init
+# Incializando Prisma
+npx prisma init
+
+#Ele cria pasta prisma e dentro dela:
+# schema.prisma
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["referentialIntegrity"]
+}
+
+datasource db = {
+  provider = "mysql"
+  url = env("DATABASE_URL")
+  referentialIntegrity = "prisma"
+}
+
+
+#Enum no Prima
+enum TrailStatus {
+  ACTIVE
+  INACTIVE
+}
+
+# Trilha tem varios cursos
+model Trail {
+  id String @id @default(uuid())
+  
+  title String 
+  description String? 
+  slug String String @unique
+   
+  # Usando ENUM
+  statusTrail: TrailStatus @default(ACTIVE)
+  created_at DateTime @default(now())
+  updated_at DateTime @updateAt
+
+    
+  # Uma trilha tem vários cursos 
+  courses Course[]
+  
+  # Uma trilha pode ter varias matriculas
+  enrollments Enrollment[] 
+ 
+ # Uma trilha pode ter varios estudanted
+  students Student[]
+
+
+  @@map("trails")
+# iAdicionar indice
+  @@index([title])
+}
+
+# Curso pertence a uma trilha
+model Course {
+  id String @id @default(uuid())
+
+
+  trail_id String
+
+  trail Trail @relation(fields: [trail_id], references: [id])
+
+  # Um Curso tem várias lessons 
+  lessons Lesson[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updateAt
+
+  @@map("courses")
+
+}
+
+# Lesson pertence ao Curso
+model Lesson {
+  id String @id @default(uuid())
+  
+  title String 
+  description String?
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updateAt
+
+
+  course_id String
+  course Course @relation(fields: [course_id], references: [id])
+
+  @@map("lessons")
+
+
+}
+
+# Uma forma de muitos para muitos
+# Student pode estar matriculado em várias trilhas muitos para muitos
+model Student {
+  id String @id @default(uuid())
+  
+  name String 
+  email String 
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updateAt
+
+
+  # Uma forma de muitos para muitos
+  #trails Trail[]
+  # Um Students pode ter varias matriculas
+  enrollments Enrollment[] 
+
+ 
+  trail_id String
+  trail Trail @relation(fields: [trail_id], references: [id])
+
+  @@map("students")
+  
+
+}
+
+# Outra forma de muitos para muitos (N X N)
+model Enrollment(Matricula) {
+  id String @id @default(uuid())
+  
+  Student Student? @relation(fields: [student_id], references: [id])
+  student_id String ?
+
+  Trail Trailt? @relation(fields: [trail_id], references: [id])
+  trail_id String ?
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updateAt
+
+  @@map("enrollments")
+
+
+}
+
+
+# Uma boa dica para VsCode e usar Plugin do Prisma v3.12.0
+# E tambem adcionar no settings do VsCode:
+"[prisma]" : {
+   "editor.formatOnSave": true
+}
+
+
+# gerando o banco
+npx prisma migrate dev
+
+
+# Sycronizando o banco
+npx prima db push 
+
+# Pegando informações na base
+npx prima db pull 
+
+# Gerando diagramas de relacionamentos com prisma
+npm i -D prisma-erd-generator @mermaid-js/mermaid-cli
+
+npx prisma generate
+
+# Retornando estrutura de um banco já existente
+npx prisma introspect
+
+ 
+# Trabalhando com prisma
+npm i @prisma/client
+
+# index.ts
+import { PrismaClient } from '@prisma/client'  ;
+
+const prisma = new PrismaClient();
+
+asyn function main() {
+
+  # Criando um registro na tabela - E uma operação Atomica ( tudo tem que funcionar ) - ele faz transaction  automatic
+  # forçando ele fazer manualmente
+  //await prisma.$transaction([
+     prisma.student.create({..... ,
+       
+  ]);
+
+  await prisma.student.create({
+          data: {
+            name: 'Eduardo',
+            email: 'gomes@gmail.com',
+            # Criando uma matricula direta
+           enrollments: {
+             create: {
+         #Criando a trilha
+              Trail: {
+                create: {
+                  title: 'Trilha de react',
+                  slug: 'trilha-de-react',
+               }
+              }
+             }
+           }
+          }
+  });
+}
+
+# Pequisando
+const students = await prisma.student.findMany({
+  include: {
+     enrollments: {
+       include: {
+          Trail: true
+          
+       }
+     }  
+  }
+}) 
+
+console.log(JSON.stringify(students, null, 2))
+main();
+
+
+
+#Multipli inserts
+#seed.ts
+import { PrismaClient } from '@prisma/client'  ;
+
+const prisma = new PrismaClient();
+
+asyn function main() {
+
+await prisma.trail.createMany({
+ data: [
+   { title: 'Trilha 01', slug: 'trilha-01' },
+   { title: 'Trilha 02', slug: 'trilha-02' },
+   { title: 'Trilha 03', slug: 'trilha-03' },
+ ]
+});
+}
+main();
+package.json
+"scripts": {
+ ...
+},
+"prisma" {
+  "seed" : "ts-node src/seed.ts" 
+},.
+
+# Executando Seed
+npx prisma db seed
+
+
+# Problemas de N + 1 em GraphQL
+select * from usuarios
+select * from enrollemts where id = 1
+select * from enrollemts where id = 2
+select * from enrollemts where id = 3
+select * from enrollemts where id = 6
+# Invés de select abaixo 
+select * from enrollemts in (1 ,2, 3 ,6)
+
+# Checar depois informações sobre DataLoaders
+# GraphQL seguinte query 
+# Quero bucar todas matriculas da minha aplicação e as trilhas destas matriculas que estão presente
+ query {
+  enrollments {
+   trails {
+      
+   }
+  }
+}
+await prisma.trail.find
+
+# Que o meu backend faria
+await prisma.enrollement.findMany();
+await prisma.trail.findUnique({
+ where: {
+    slug: 'trilha-01'
+ }
+})
+
+await prisma.trail.findUnique({
+ where: {
+    slug: 'trilha-02'
+ }
+})
+
+await prisma.trail.findUnique({
+ where: {
+    slug: 'trilha-03'
+ }
+})
+
+
+# Gera um Select com IN de várias 
+await Promisse.all([
+  prisma.trail.findUnique({
+   where: {
+      slug: 'trilha-01'
+   }
+  }),
+  prisma.trail.findUnique({
+   where: {
+     slug: 'trilha-02'
+   }
+  }),
+  prisma.trail.findUnique({
+   where: {
+    slug: 'trilha-03'
+   }
+})
+]);
+
+ # Fonte prisma.io/docs/guides/performance-and-optmization/query-optmization-performace
+
+# Prisma Data Proxy- basicamente para serverless com unico proxy de conexao
+# Fonte prisma.io/docs/concepts/data-platform/data-proxy
+- Heroku
+
+# Alguns ferramentas já vem configurado Proxy:
+- PlanetScale - Mysql
+- upstash - Redis- Kafka
+- Dymondydb
+
+
+# Cloud Prisma
+prisma.io/dataplatform
+
