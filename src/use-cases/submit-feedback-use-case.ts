@@ -13,11 +13,10 @@ export class SubmitFeedbackUseCase {
     private mailAdapter: MailAdapter,
   ) {}
 
-
   async execute(request: SubmitFeedbackUseCaseRequest) {
     const { type, comment, screenshot } = request;
 
-    if (!type) 
+    if (!type) {
       throw new Error('Type is required.');
     }
 
@@ -32,7 +31,7 @@ export class SubmitFeedbackUseCase {
     await this.feedbackRepository.create({
       type,
       comment,
-      screenshot
+      screenshot,
     });
 
     await this.mailAdapter.sendMain({

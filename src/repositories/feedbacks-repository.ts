@@ -1,12 +1,15 @@
-import { FeedbackDTO , Feedbacks } from '../models/feedbacks';
+import { FeedbackDTO , IFeedback, IFeedBacks } from '../models/feedbacks';
 
-//export interface FeedbackCreateData  {
-//  type: string;
-//  comment: string;
-//  screenshot?: string;
-//}
+interface Feedback  {
+    id: string;
+    type: string;
+    comment: string;
+    screenshot?: string;
+}
+
+
 
 export interface FeedbacksRepository {
   create: (data: FeedbackDTO) => Promise<void>;
-  find() => Promise<IFeedbacks>;  
+  getAll(): Promise<IFeedback[]|any>; 
 }

@@ -1,8 +1,11 @@
 import { prisma } from "../../prisma";
 import { FeedbacksRepository } from "../feedbacks-repository";
-import { FeedbackDTO, IFeedbacks } from "../../models/feedbacks";
+import { FeedbackDTO, IFeedbacks, IFeedback } from "../../models/feedbacks";
 
 export class PrismaFeedbacksRepository implements FeedbacksRepository {
+ feedbacks: IFeedback[] = [];
+     
+
   async create({ type, comment, screenshot }: FeedbackDTO) {
     await prisma.feedback.create({
       data: {
@@ -13,11 +16,10 @@ export class PrismaFeedbacksRepository implements FeedbacksRepository {
     });
   }
 
-  async find(): IFeedbacks {
-    
-    const result = await prisma.feedback.findMany<IFeedbabks>();
-
-    return result; 
-
+  async getAll(): Promise<IFeedback[]| any> {
+    const feedbacks = await prisma.feedback.findMany();
+     
+    return feedbacks;     
   } 
+      
 }

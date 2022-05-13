@@ -1,0 +1,19 @@
+# Implementacao
+	quizzes: Quiz[];
+
+
+	async get(idQuiz: number): Promise<Quiz> {
+		const quiz = this.quizzes.find(quiz => quiz.idQuiz === idQuiz);
+		if (!quiz) throw new Error("Quiz not found");
+		return quiz;
+	}
+
+
+
+# Interface Repository
+
+import Quiz from "../entity/Quiz";
+
+export default interface QuizRepository {
+	get(idQuiz: number): Promise<Quiz>;
+}

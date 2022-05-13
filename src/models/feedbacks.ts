@@ -13,4 +13,5 @@ export interface IFeedback {
 
 export interface IFeedbacks {
   feedbacks: IFeedback[];
+}
 
