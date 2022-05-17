@@ -4,9 +4,16 @@ import { PrismaFeedbacksRepository,   } from './repositories/prisma/prisma-feedb
 import { SubmitFeedbackUseCase } from './use-cases/submit-feedback-use-case';
 import { IFeedbacks }  from './models/feedbacks';
 import { PrismaRepository } from './repositories/prisma/prisma_repo';
+import NodeCache from "node-cache";
 
 
 export const routes = express.Router();
+
+const CACHE_LIMITE = 10;
+
+const dbCache = new NodeCache({ stdTTL: CACHE_LIMITE, checkperiod: 0.2 });
+
+const mySqlQuery = 'Minha Chave';
 
 routes.post('/feedbacks', async (req, res) => {
   const { type, comment, screenshot } = req.body;
@@ -29,15 +36,34 @@ routes.post('/feedbacks', async (req, res) => {
 });
 
 
+
 routes.get('/feedbacks', async (req, res) => {
   // const prismaFeedbacksRepository = new PrismaFeedbacksRepository();
   
   const prismaRepository = new PrismaRepository();
       
-
+  if (dbCache.has(mySqlQuery)) {
+     //console.log("entrou aqui cache");
+     return res.end(JSON.stringify(dbCache.get(mySqlQuery)));
+     
+  }
   
-  //const result = await prismaFeedbacksRepository.getAll();
-   const result = await prismaRepository.find();
+   try {
+        const result = await prismaRepository.find();
+    
+         //const result = await prismaFeedbacksRepository.getAll();
+         const success = dbCache.set(mySqlQuery, result, CACHE_LIMITE);
+         if (success) {
+              // console.log("criou o cache");
 
-   return res.status(200).json(result).send();
+              return res.status(200).json(result).send();
+         }
+         res.writeHead(500);
+         res.end();
+
+      } catch (error) {
+        console.log('Error ', error);
+        res.writeHead(500);
+        res.end()
+      }  
 });
