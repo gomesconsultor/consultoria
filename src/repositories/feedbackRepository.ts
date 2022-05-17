@@ -1,11 +1,15 @@
 import { IFeedback } from '../models/feedbacks';
-import { BaseRepository } from './BaseRepository';
+import { RepositoryBase } from './Base/RepositoryBase';
 
-export class FeedbackRepository extends BaseRepository {
+export abstract class FeedbackRepository implements RepositoryBase {
 
-  //create: (data: FeedbackDTO) => Promise<void>;
-  find(): Promise<IFeedback[]>; 
-  findOne(id: string): Promise<IFeedback>; 
+  find(): Promise<IFeedback[]| any> {
+     throw new Error("Not Implemented");     
+  }
+   
+  findOne(id: string): Promise<IFeedback|any>  {
+     throw new Error("Not Implemented");     
+  }
 }
 
 

@@ -16,9 +16,9 @@ export class PrismaFeedbacksRepository implements FeedbacksRepository {
     });
   }
 
-  async getAll(): Promise<IFeedback[]| any> {
+  async getAll(): Promise<IFeedback[]|any> {
     const feedbacks = await prisma.feedback.findMany();
-     
+    console.log(feedbacks); 
     return feedbacks;     
   } 
       

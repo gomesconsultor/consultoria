@@ -11,5 +11,5 @@ interface Feedback  {
 
 export interface FeedbacksRepository {
   create: (data: FeedbackDTO) => Promise<void>;
-  getAll(): Promise<IFeedback[]|any>; 
+  getAll(): Promise<IFeedback[]| any>; 
 }
