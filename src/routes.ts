@@ -13,7 +13,7 @@ const CACHE_LIMITE = 10;
 
 const dbCache = new NodeCache({ stdTTL: CACHE_LIMITE, checkperiod: 0.2 });
 
-const mySqlQuery = 'Minha Chave';
+const mySqlQuery = 'MinhaChave';
 
 routes.post('/feedbacks', async (req, res) => {
   const { type, comment, screenshot } = req.body;
@@ -43,8 +43,9 @@ routes.get('/feedbacks', async (req, res) => {
   const prismaRepository = new PrismaRepository();
       
   if (dbCache.has(mySqlQuery)) {
-     //console.log("entrou aqui cache");
-     return res.end(JSON.stringify(dbCache.get(mySqlQuery)));
+     console.log("entrou aqui cache");
+     res.end(JSON.stringify(dbCache.get(mySqlQuery)));
+     return; 
      
   }
   
@@ -54,7 +55,7 @@ routes.get('/feedbacks', async (req, res) => {
          //const result = await prismaFeedbacksRepository.getAll();
          const success = dbCache.set(mySqlQuery, result, CACHE_LIMITE);
          if (success) {
-              // console.log("criou o cache");
+               console.log("criou o cache");
 
               return res.status(200).json(result).send();
          }
