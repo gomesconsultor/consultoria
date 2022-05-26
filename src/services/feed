@@ -1,0 +1,22 @@
+import { prisma } from "../../prisma";
+import { Query , Resolver } from "type-graphql";
+import { PrismaRepository } from "../repositories/prisma/prisma_repo";
+import { FeedbackInput } from '../models/FeedbackInput';
+import { IFeedback, IFeedback } from "../models/feedbacks";
+
+@Resolver()
+export class FeedbackResolver {
+  const prismaRepository = new PrismaRepository();
+  feedbacks: IFeedback[] = [];
+
+  private data: Feedback[] = [];    
+     
+  @Query(() => [Feedback])
+  async feedbacks() {
+      this.data  = await prismaRepository.find<Feedback[]>();
+      //console.log(result);
+      return this.data;       
+  }
+}
+
+
